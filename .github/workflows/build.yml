@@ -1,0 +1,70 @@
+name: Build JIJIEFPVH743 ArduCopter
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout custom board repository
+        uses: actions/checkout@v4
+
+      - name: Checkout ArduPilot
+        uses: actions/checkout@v4
+        with:
+          repository: ArduPilot/ardupilot
+          path: ardupilot
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          cd ardupilot
+          Tools/environment_install/install-prereqs-ubuntu.sh -y
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Install custom JIJIEFPVH743 hwdef
+        run: |
+          mkdir -p ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743
+          cp hwdef/JIJIEFPVH743/hwdef.dat ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743/
+          cp hwdef/JIJIEFPVH743/hwdef-bl.dat ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743/
+          cp hwdef/JIJIEFPVH743/defaults.parm ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743/
+
+      - name: Verify board ID
+        run: |
+          grep -n "AP_HW_DAKEFPVH743" ardupilot/Tools/AP_Bootloader/board_types.txt
+          test "$(grep -c '^AP_HW_DAKEFPVH743 ' ardupilot/Tools/AP_Bootloader/board_types.txt)" -eq 1
+
+      - name: Configure board
+        run: |
+          cd ardupilot
+          ./waf configure --board JIJIEFPVH743
+
+      - name: Build bootloader
+        run: |
+          cd ardupilot
+          ./waf configure --board JIJIEFPVH743 --bootloader
+          ./waf bootloader
+
+      - name: Build ArduCopter
+        run: |
+          cd ardupilot
+          ./waf configure --board JIJIEFPVH743
+          ./waf copter
+
+      - name: Show build artifacts
+        run: |
+          find ardupilot/build/JIJIEFPVH743/bin -maxdepth 1 -type f -printf '%f\n' | sort
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: JIJIEFPVH743-ArduCopter
+          path: |
+            ardupilot/build/JIJIEFPVH743/bin/arducopter.apj
+            ardupilot/build/JIJIEFPVH743/bin/arducopter_with_bl.hex
+            ardupilot/build/JIJIEFPVH743/bin/AP_Bootloader.bin
