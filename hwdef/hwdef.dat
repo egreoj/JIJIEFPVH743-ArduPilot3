@@ -1,0 +1,214 @@
+# hw definition for JIJIEFPV H743
+# Custom target based on the JIJIEFPV H743 Betaflight resource map.
+# Hardware observed:
+#   MCU: STM32H743xx, 8MHz HSE, 480MHz
+#   IMU: 2 x LSM6DSK320X on SPI1/SPI4
+#   BARO: DPS310 on I2C2 @ 0x76
+#   DATAFLASH: 16MB Winbond-class SPI flash on SPI3, CS PA15
+#   OSD: SPI2, CS PB12
+#
+# The board uses the existing DAKEFPVH743 board ID (1193) because that
+# ID is already reserved by ArduPilot for this hardware family. Do not
+# allocate a new private ID in the 1000-19999 range.
+
+MCU STM32H7xx STM32H743xx
+APJ_BOARD_ID AP_HW_DAKEFPVH743
+
+OSCILLATOR_HZ 8000000
+MCU_CLOCKRATE_MHZ 480
+
+FLASH_SIZE_KB 2048
+# Keep the same bootloader boundary used by the DAKEFPVH743 family.
+FLASH_RESERVE_START_KB 384
+
+# ArduPilot persistent parameter storage
+# 16KB reserved in the internal flash storage area.
+define HAL_STORAGE_SIZE 16384
+define STORAGE_FLASH_PAGE 1
+
+# ChibiOS system timer
+STM32_ST_USE_TIMER 12
+define CH_CFG_ST_RESOLUTION 16
+
+# ----------------------------------------------------------------------
+# SPI buses
+# ----------------------------------------------------------------------
+# SPI1 - IMU 1
+PA5 SPI1_SCK  SPI1
+PA6 SPI1_MISO SPI1
+PA7 SPI1_MOSI SPI1
+PA4 GYRO1_CS CS
+
+# SPI2 - OSD
+PB13 SPI2_SCK  SPI2
+PB14 SPI2_MISO SPI2
+PB15 SPI2_MOSI SPI2
+PB12 OSD1_CS CS
+
+# SPI3 - 16MB dataflash
+PC10 SPI3_SCK  SPI3
+PC11 SPI3_MISO SPI3
+PC12 SPI3_MOSI SPI3
+PA15 FLASH1_CS CS
+
+# SPI4 - IMU 2
+PE12 SPI4_SCK  SPI4
+PE13 SPI4_MISO SPI4
+PE14 SPI4_MOSI SPI4
+PB1 GYRO2_CS CS
+
+# ----------------------------------------------------------------------
+# USB / SWD
+# ----------------------------------------------------------------------
+PA11 OTG_FS_DM OTG1
+PA12 OTG_FS_DP OTG1
+PA13 JTMS-SWDIO SWD
+PA14 JTCK-SWCLK SWD
+
+# ----------------------------------------------------------------------
+# Serial ports
+# ----------------------------------------------------------------------
+# Order is USB, USART1..8. Physical pins are taken directly from the
+# supplied Betaflight resource dump.
+SERIAL_ORDER OTG1 USART1 USART2 USART3 UART4 UART5 USART6 UART7 UART8
+
+# UART1 - GPS
+PA9  USART1_TX USART1
+PA10 USART1_RX USART1
+define DEFAULT_SERIAL1_PROTOCOL SerialProtocol_GPS
+
+# UART2 - CRSF / ExpressLRS receiver
+PD5 USART2_TX USART2 NODMA
+PD6 USART2_RX USART2 NODMA
+
+# UART3 - ESC telemetry
+PD8 USART3_TX USART3 NODMA
+PD9 USART3_RX USART3 NODMA
+define DEFAULT_SERIAL3_PROTOCOL SerialProtocol_ESCTelemetry
+
+# UART4
+PD1 UART4_TX UART4
+PD0 UART4_RX UART4
+
+# UART5
+PB6 UART5_TX UART5
+PB5 UART5_RX UART5
+
+# UART6
+PC6 USART6_TX USART6
+PC7 USART6_RX USART6
+
+# UART7
+PE8 UART7_TX UART7
+PE7 UART7_RX UART7
+
+# UART8
+PE1 UART8_TX UART8 NODMA
+PE0 UART8_RX UART8 NODMA
+
+# ----------------------------------------------------------------------
+# I2C
+# ----------------------------------------------------------------------
+I2C_ORDER I2C2
+PB10 I2C2_SCL I2C2
+PB11 I2C2_SDA I2C2
+
+# DPS310 is detected by the supplied Betaflight status output.
+BARO DPS310 I2C:0:0x76
+define AP_BARO_BACKEND_DEFAULT_ENABLED 0
+define AP_BARO_DPS310_ENABLED 1
+
+# ----------------------------------------------------------------------
+# ADC / battery monitor
+# ----------------------------------------------------------------------
+PC0 BATT_CURRENT_SENS ADC1 SCALE(1)
+define HAL_BATT_CURR_PIN 10
+define HAL_BATT_CURR_SCALE 83.3
+
+PC1 BATT_VOLTAGE_SENS ADC1 SCALE(1)
+define HAL_BATT_VOLT_PIN 11
+define HAL_BATT_VOLT_SCALE 16.0
+
+PC5 RSSI_ADC ADC1
+define BOARD_RSSI_ANA_PIN 8
+
+define HAL_BATT_MONITOR_DEFAULT 4
+
+# ----------------------------------------------------------------------
+# Motor outputs
+# ----------------------------------------------------------------------
+# M1-M4 are PA0-PA3. Use TIM2 as in the proven DAKEFPV H743 definition.
+PA0 TIM2_CH1 TIM2 PWM(1) GPIO(50) BIDIR
+PA1 TIM2_CH2 TIM2 PWM(2) GPIO(51)
+PA2 TIM2_CH3 TIM2 PWM(3) GPIO(52) BIDIR
+PA3 TIM2_CH4 TIM2 PWM(4) GPIO(53)
+
+# M5-M8 are PD12-PD15.
+PD12 TIM4_CH1 TIM4 PWM(5) GPIO(54) BIDIR
+PD13 TIM4_CH2 TIM4 PWM(6) GPIO(55)
+PD14 TIM4_CH3 TIM4 PWM(7) GPIO(56) BIDIR
+PD15 TIM4_CH4 TIM4 PWM(8) GPIO(57)
+
+# ----------------------------------------------------------------------
+# LED strip / status LEDs / buzzer
+# ----------------------------------------------------------------------
+PE9 TIM1_CH1 TIM1 PWM(9) GPIO(58)
+
+PD10 LED0 OUTPUT LOW GPIO(90)
+define HAL_GPIO_A_LED_PIN 90
+PD11 LED1 OUTPUT LOW GPIO(91)
+define HAL_GPIO_B_LED_PIN 91
+PA8 LED2 OUTPUT LOW GPIO(92)
+define HAL_GPIO_C_LED_PIN 92
+
+PC2 BUZZER OUTPUT GPIO(80) LOW PULLDOWN
+define HAL_BUZZER_PIN 80
+
+# ----------------------------------------------------------------------
+# PINIO
+# ----------------------------------------------------------------------
+PE2 PINIO1 OUTPUT GPIO(81) HIGH
+define RELAY1_PIN_DEFAULT 81
+PE3 PINIO2 OUTPUT GPIO(82) HIGH
+define RELAY2_PIN_DEFAULT 82
+PE4 PINIO3 OUTPUT GPIO(83) HIGH
+define RELAY3_PIN_DEFAULT 83
+
+# ----------------------------------------------------------------------
+# SPI devices
+# ----------------------------------------------------------------------
+SPIDEV imu1      SPI1 DEVID1 GYRO1_CS MODE3 1*MHZ 16*MHZ
+SPIDEV osd       SPI2 DEVID1 OSD1_CS   MODE0 10*MHZ 10*MHZ
+SPIDEV dataflash SPI3 DEVID1 FLASH1_CS MODE3 32*MHZ 32*MHZ
+SPIDEV imu2      SPI4 DEVID1 GYRO2_CS MODE3 1*MHZ 16*MHZ
+
+# LSM6DSV driver family includes LSM6DSK320X support in current ArduPilot.
+# Keep the existing family probe order used by the DAKEFPV H743 target.
+IMU LSM6DSV SPI:imu1 ROTATION_ROLL_180
+IMU LSM6DSV SPI:imu2 ROTATION_PITCH_180
+
+# Fallback only if a compatible Invensense IMU is ever fitted.
+IMU Invensensev3 SPI:imu1 ROTATION_ROLL_180
+IMU Invensensev3 SPI:imu2 ROTATION_PITCH_180
+
+# ----------------------------------------------------------------------
+# Logging / OSD / compass
+# ----------------------------------------------------------------------
+define HAL_LOGGING_DATAFLASH_ENABLED 1
+define OSD_ENABLED 1
+define HAL_OSD_TYPE_DEFAULT 1
+ROMFS_WILDCARD libraries/AP_OSD/fonts/font*.bin
+
+define AP_COMPASS_PROBING_ENABLED 1
+define HAL_I2C_INTERNAL_MASK 0
+define HAL_COMPASS_AUTO_ROT_DEFAULT 2
+
+# Fast IMU sample setting used by the DAKEFPV family.
+define HAL_DEFAULT_INS_FAST_SAMPLE 3
+
+# Betaflight/X-style motor layout.
+define HAL_FRAME_TYPE_DEFAULT 12
+
+# Avoid DMA conflicts between the high-rate IMUs and motor timers.
+DMA_NOSHARE TIM2_UP TIM4_UP SPI1* SPI4*
+DMA_PRIORITY TIM2_UP TIM4_UP SPI1* SPI4*
