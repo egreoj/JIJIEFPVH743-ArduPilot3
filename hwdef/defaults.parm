@@ -1,0 +1,22 @@
+# JIJIEFPV H743 default parameters
+# These are conservative board-level defaults only.
+# Flight tuning must be done after sensor/RC/motor verification.
+
+# Hexacopter frame (ArduPilot FRAME_CLASS: 2 = HEXA)
+FRAME_CLASS 2
+
+# CRSF / ExpressLRS is expected on SERIAL2.
+SERIAL2_PROTOCOL 23
+
+# GPS is expected on SERIAL1.
+SERIAL1_PROTOCOL 5
+
+# ESC telemetry on SERIAL3.
+SERIAL3_PROTOCOL 16
+
+# DShot-capable motor outputs are expected to be configured by the user.
+# Do not force a motor protocol here until bench testing confirms the ESCs.
+
+# Battery monitor is enabled by the hwdef ADC definitions.
+BATT_MONITOR 4
+
