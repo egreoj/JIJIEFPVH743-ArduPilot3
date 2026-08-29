@@ -1,0 +1,37 @@
+# Bootloader hardware definition for JIJIEFPV H743.
+# Uses the existing DAKEFPVH743 board ID (1193).
+
+MCU STM32H7xx STM32H743xx
+APJ_BOARD_ID AP_HW_DAKEFPVH743
+
+OSCILLATOR_HZ 8000000
+FLASH_SIZE_KB 2048
+
+# Bootloader occupies the first 384KB, matching the DAKEFPVH743 family.
+FLASH_RESERVE_START_KB 0
+FLASH_BOOTLOADER_LOAD_KB 384
+
+# USB CDC bootloader connection.
+SERIAL_ORDER OTG1
+PA11 OTG_FS_DM OTG1
+PA12 OTG_FS_DP OTG1
+
+# SWD
+PA13 JTMS-SWDIO SWD
+PA14 JTCK-SWCLK SWD
+
+# Keep board pins safe while the bootloader is running.
+DEFAULTGPIO OUTPUT LOW PULLDOWN
+
+# Chip selects are explicitly driven inactive by the bootloader pin setup.
+PA15 FLASH1_CS CS
+PB12 OSD1_CS CS
+PA4 GYRO1_CS CS
+PB1 GYRO2_CS CS
+
+# Bootloader status LED.
+PD10 LED_BOOTLOADER OUTPUT LOW
+define HAL_LED_ON 0
+
+# Keep the VTX/control output in its safe default state.
+PE3 PINIO2 OUTPUT GPIO(82) HIGH
