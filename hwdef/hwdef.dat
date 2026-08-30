@@ -114,7 +114,6 @@ PB10 I2C2_SCL I2C2
 PB11 I2C2_SDA I2C2
 
 # DPS310 barometer on I2C2 @ 0x76
-BARO DPS310 I2C:0:0x76
 define AP_BARO_BACKEND_DEFAULT_ENABLED 0
 define AP_BARO_DPS310_ENABLED 1
 
@@ -187,6 +186,9 @@ SPIDEV imu2      SPI4 DEVID1 GYRO2_CS MODE3 1*MHZ 16*MHZ
 # Use HAL_INS_PROBE macros to configure the driver with the correct device type.
 define HAL_INS_PROBE1 ADD_BACKEND(AP_InertialSensor_LSM6DSV::probe(*this,hal.spi->get_device("imu1"),ROTATION_ROLL_180,AP_InertialSensor_LSM6DSV::LSM6DSV_Type::LSM6DSK320X))
 define HAL_INS_PROBE2 ADD_BACKEND(AP_InertialSensor_LSM6DSV::probe(*this,hal.spi->get_device("imu2"),ROTATION_PITCH_180,AP_InertialSensor_LSM6DSV::LSM6DSV_Type::LSM6DSK320X))
+
+# Barometer probe for DPS310 on I2C2
+define HAL_BARO_PROBE1 ADD_BACKEND(AP_Baro_DPS310::probe(*this, hal.i2c_mgr->get_device(1, 0x76)))
 
 # ----------------------------------------------------------------------
 # Logging / OSD / compass
