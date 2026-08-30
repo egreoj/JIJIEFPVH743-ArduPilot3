@@ -18,7 +18,7 @@ OSCILLATOR_HZ 8000000
 MCU_CLOCKRATE_MHZ 480
 
 FLASH_SIZE_KB 2048
-# Keep the same bootloader boundary used by the DAKEFPVH743 family.
+# Keep the same bootloader boundary used by the DAKEFPV H743 family.
 FLASH_RESERVE_START_KB 384
 
 # ArduPilot persistent parameter storage
@@ -182,14 +182,9 @@ SPIDEV osd       SPI2 DEVID1 OSD1_CS   MODE0 10*MHZ 10*MHZ
 SPIDEV dataflash SPI3 DEVID1 FLASH1_CS MODE3 32*MHZ 32*MHZ
 SPIDEV imu2      SPI4 DEVID1 GYRO2_CS MODE3 1*MHZ 16*MHZ
 
-# LSM6DSV driver family includes LSM6DSK320X support in current ArduPilot.
-# Keep the existing family probe order used by the DAKEFPV H743 target.
-IMU LSM6DSV SPI:imu1 ROTATION_ROLL_180
-IMU LSM6DSV SPI:imu2 ROTATION_PITCH_180
-
-# Fallback only if a compatible Invensense IMU is ever fitted.
-IMU Invensensev3 SPI:imu1 ROTATION_ROLL_180
-IMU Invensensev3 SPI:imu2 ROTATION_PITCH_180
+# The board uses LSM6DSK320X IMUs on SPI1 and SPI4.
+IMU LSM6DSK320X SPI:imu1 ROTATION_ROLL_180
+IMU LSM6DSK320X SPI:imu2 ROTATION_PITCH_180
 
 # ----------------------------------------------------------------------
 # Logging / OSD / compass
