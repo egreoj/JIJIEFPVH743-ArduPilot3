@@ -38,7 +38,7 @@ jobs:
           Tools/environment_install/install-prereqs-ubuntu.sh -y
           python3 -m venv --system-site-packages "$HOME/ardupilot-venv"
           "$HOME/ardupilot-venv/bin/python3" -m pip install --upgrade pip
-          "$HOME/ardupilot-venv/bin/python3" -m pip install "empy==3.3.4"
+          "$HOME/ardupilot-venv/bin/python3" -m pip install "empy==3.3.4" intelhex
           "$HOME/ardupilot-venv/bin/python3" -m pip install "intelhex"
           echo "$HOME/ardupilot-venv/bin" >> "$GITHUB_PATH"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
