@@ -70,24 +70,24 @@ jobs:
           grep -R "LSM6DSK320X" ardupilot/libraries/AP_InertialSensor | head -20
           test -n "$(grep -R "DEVTYPE_INS_LSM6DSK320X" ardupilot/libraries/AP_InertialSensor | head -1)"
 
+      - name: Build JIJIEFPVH743 bootloader first
+        run: |
+          set -eux
+          cd ardupilot
+          python3 Tools/scripts/build_bootloaders.py JIJIEFPVH743
+          test -f Tools/bootloaders/JIJIEFPVH743_bl.bin
+          ls -lh Tools/bootloaders/JIJIEFPVH743_bl.bin
+
       - name: Configure board
         run: |
           set -eux
           cd ardupilot
           ./waf configure --board JIJIEFPVH743
 
-      - name: Build bootloader
-        run: |
-          set -eux
-          cd ardupilot
-          ./waf configure --board JIJIEFPVH743 --bootloader
-          ./waf bootloader
-
       - name: Build ArduCopter
         run: |
           set -eux
           cd ardupilot
-          ./waf configure --board JIJIEFPVH743
           ./waf copter
 
       - name: Show build artifacts
