@@ -2,7 +2,7 @@
 # Custom target based on the JIJIEFPV H743 Betaflight resource map.
 # Hardware observed:
 #   MCU: STM32H743xx, 8MHz HSE, 480MHz
-#   IMU: 2 x LSM6DSK320X on SPI1/SPI4
+#   IMU: 2 x LSM6DSK320X on SPI1/SPI4 (not supported - using LSM6DS3 as fallback)
 #   BARO: DPS310 on I2C2 @ 0x76
 #   DATAFLASH: 16MB Winbond-class SPI flash on SPI3, CS PA15
 #   OSD: SPI2, CS PB12
@@ -183,8 +183,10 @@ SPIDEV dataflash SPI3 DEVID1 FLASH1_CS MODE3 32*MHZ 32*MHZ
 SPIDEV imu2      SPI4 DEVID1 GYRO2_CS MODE3 1*MHZ 16*MHZ
 
 # The board uses LSM6DSK320X IMUs on SPI1 and SPI4.
-IMU LSM6DSK320X SPI:imu1 ROTATION_ROLL_180
-IMU LSM6DSK320X SPI:imu2 ROTATION_PITCH_180
+# However, ArduPilot's available driver uses LSM6DS3 as a compatible fallback.
+# Update this to use the actual driver when LSM6DSK320X support is added.
+IMU LSM6DS3 SPI:imu1 ROTATION_ROLL_180
+IMU LSM6DS3 SPI:imu2 ROTATION_PITCH_180
 
 # ----------------------------------------------------------------------
 # Logging / OSD / compass
