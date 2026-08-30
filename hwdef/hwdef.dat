@@ -183,11 +183,8 @@ SPIDEV dataflash SPI3 DEVID1 FLASH1_CS MODE3 32*MHZ 32*MHZ
 SPIDEV imu2      SPI4 DEVID1 GYRO2_CS MODE3 1*MHZ 16*MHZ
 
 # The board uses LSM6DSK320X IMUs on SPI1 and SPI4.
-# Use LSM6DSV driver which supports LSM6DSK320X variant
-IMU LSM6DSV SPI:imu1 ROTATION_ROLL_180
-IMU LSM6DSV SPI:imu2 ROTATION_PITCH_180
-
-# Define the IMU driver to use LSM6DSK320X variant support
+# Use LSM6DSV driver which supports LSM6DSK320X variant.
+# Use HAL_INS_PROBE macros to configure the driver with the correct device type.
 define HAL_INS_PROBE1 ADD_BACKEND(AP_InertialSensor_LSM6DSV::probe(*this,hal.spi->get_device("imu1"),ROTATION_ROLL_180,AP_InertialSensor_LSM6DSV::LSM6DSV_Type::LSM6DSK320X))
 define HAL_INS_PROBE2 ADD_BACKEND(AP_InertialSensor_LSM6DSV::probe(*this,hal.spi->get_device("imu2"),ROTATION_PITCH_180,AP_InertialSensor_LSM6DSV::LSM6DSV_Type::LSM6DSK320X))
 
