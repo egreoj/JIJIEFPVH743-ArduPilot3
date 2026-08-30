@@ -13,6 +13,16 @@ jobs:
       - name: Checkout custom board repository
         uses: actions/checkout@v4
 
+      - name: Show custom repository layout
+        run: |
+          set -eux
+          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
+          git rev-parse HEAD
+          test -f "$GITHUB_WORKSPACE/hwdef/hwdef.dat"
+          test -f "$GITHUB_WORKSPACE/hwdef/hwdef-bl.dat"
+          test -f "$GITHUB_WORKSPACE/hwdef/defaults.parm"
+          ls -la "$GITHUB_WORKSPACE/hwdef"
+
       - name: Checkout ArduPilot
         uses: actions/checkout@v4
         with:
@@ -34,21 +44,26 @@ jobs:
 
       - name: Install custom JIJIEFPVH743 hwdef
         run: |
-          set -e
-          test -f hwdef/hwdef.dat
-          test -f hwdef/hwdef-bl.dat
-          test -f hwdef/defaults.parm
-          mkdir -p ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743
-          cp hwdef/hwdef.dat ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743/hwdef.dat
-          cp hwdef/hwdef-bl.dat ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743/hwdef-bl.dat
-          cp hwdef/defaults.parm ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743/defaults.parm
+          set -eux
+          SRC="$GITHUB_WORKSPACE/hwdef"
+          DST="$GITHUB_WORKSPACE/ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743"
+          test -f "$SRC/hwdef.dat"
+          test -f "$SRC/hwdef-bl.dat"
+          test -f "$SRC/defaults.parm"
+          mkdir -p "$DST"
+          cp "$SRC/hwdef.dat" "$DST/hwdef.dat"
+          cp "$SRC/hwdef-bl.dat" "$DST/hwdef-bl.dat"
+          cp "$SRC/defaults.parm" "$DST/defaults.parm"
           echo "Installed custom hwdef:"
-          ls -la ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743
+          ls -la "$DST"
 
-      - name: Verify board ID
+      - name: Verify board ID and IMU support
         run: |
+          set -eux
           grep -n "AP_HW_DAKEFPVH743" ardupilot/Tools/AP_Bootloader/board_types.txt
           test "$(grep -c '^AP_HW_DAKEFPVH743 ' ardupilot/Tools/AP_Bootloader/board_types.txt)" -eq 1
+          grep -R "LSM6DSK320X" ardupilot/libraries/AP_InertialSensor | head -20
+          test -n "$(grep -R "DEVTYPE_INS_LSM6DSK320X" ardupilot/libraries/AP_InertialSensor | head -1)"
 
       - name: Configure board
         run: |
