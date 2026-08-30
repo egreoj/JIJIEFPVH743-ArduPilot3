@@ -36,16 +36,22 @@ jobs:
           set -eux
           cd ardupilot
           Tools/environment_install/install-prereqs-ubuntu.sh -y
+          python3 -m venv --system-site-packages "$HOME/ardupilot-venv"
+          "$HOME/ardupilot-venv/bin/python3" -m pip install --upgrade pip
+          "$HOME/ardupilot-venv/bin/python3" -m pip install "empy==3.3.4"
+          echo "$HOME/ardupilot-venv/bin" >> "$GITHUB_PATH"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           echo "/opt/gcc-arm-none-eabi-10-2020-q4-major/bin" >> "$GITHUB_PATH"
 
-      - name: Verify ARM compiler
+      - name: Verify ARM compiler and Empy
         run: |
           set -eux
           command -v arm-none-eabi-gcc
           arm-none-eabi-gcc --version
           command -v arm-none-eabi-g++
           arm-none-eabi-g++ --version
+          command -v python3
+          python3 -c "import em; print('Empy:', em.__version__)"
 
       - name: Install custom JIJIEFPVH743 hwdef
         run: |
@@ -74,6 +80,7 @@ jobs:
         run: |
           set -eux
           cd ardupilot
+          python3 -c "import em; print('Using Empy:', em.__version__)"
           python3 Tools/scripts/build_bootloaders.py JIJIEFPVH743
           test -f Tools/bootloaders/JIJIEFPVH743_bl.bin
           ls -lh Tools/bootloaders/JIJIEFPVH743_bl.bin
