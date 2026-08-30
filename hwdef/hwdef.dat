@@ -2,7 +2,7 @@
 # Custom target based on the JIJIEFPV H743 Betaflight resource map.
 # Hardware observed:
 #   MCU: STM32H743xx, 8MHz HSE, 480MHz
-#   IMU: 2 x LSM6DSK320X on SPI1/SPI4 (not supported - using LSM6DS3 as fallback)
+#   IMU: 2 x LSM6DSK320X on SPI1/SPI4 (use LSM6DSV driver with LSM6DSK320X type)
 #   BARO: DPS310 on I2C2 @ 0x76
 #   DATAFLASH: 16MB Winbond-class SPI flash on SPI3, CS PA15
 #   OSD: SPI2, CS PB12
@@ -183,10 +183,13 @@ SPIDEV dataflash SPI3 DEVID1 FLASH1_CS MODE3 32*MHZ 32*MHZ
 SPIDEV imu2      SPI4 DEVID1 GYRO2_CS MODE3 1*MHZ 16*MHZ
 
 # The board uses LSM6DSK320X IMUs on SPI1 and SPI4.
-# However, ArduPilot's available driver uses LSM6DS3 as a compatible fallback.
-# Update this to use the actual driver when LSM6DSK320X support is added.
-IMU LSM6DS3 SPI:imu1 ROTATION_ROLL_180
-IMU LSM6DS3 SPI:imu2 ROTATION_PITCH_180
+# Use LSM6DSV driver which supports LSM6DSK320X variant
+IMU LSM6DSV SPI:imu1 ROTATION_ROLL_180
+IMU LSM6DSV SPI:imu2 ROTATION_PITCH_180
+
+# Define the IMU driver to use LSM6DSK320X variant support
+define HAL_INS_PROBE1 ADD_BACKEND(AP_InertialSensor_LSM6DSV::probe(*this,hal.spi->get_device("imu1"),ROTATION_ROLL_180,AP_InertialSensor_LSM6DSV::LSM6DSV_Type::LSM6DSK320X))
+define HAL_INS_PROBE2 ADD_BACKEND(AP_InertialSensor_LSM6DSV::probe(*this,hal.spi->get_device("imu2"),ROTATION_PITCH_180,AP_InertialSensor_LSM6DSV::LSM6DSV_Type::LSM6DSK320X))
 
 # ----------------------------------------------------------------------
 # Logging / OSD / compass
