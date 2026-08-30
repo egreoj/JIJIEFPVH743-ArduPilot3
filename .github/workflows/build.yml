@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout custom board repository
@@ -31,16 +31,21 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Install ARM GCC Toolchain
-        uses: jetbrains/actions-clean-gcc-arm-none-eabi@v1
-        with:
-          version: '10-2020-q4'
-
-      - name: Install dependencies
+      - name: Install ArduPilot build dependencies and ARM GCC
         run: |
+          set -eux
           cd ardupilot
           Tools/environment_install/install-prereqs-ubuntu.sh -y
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          echo "/opt/gcc-arm-none-eabi-10-2020-q4-major/bin" >> "$GITHUB_PATH"
+
+      - name: Verify ARM compiler
+        run: |
+          set -eux
+          command -v arm-none-eabi-gcc
+          arm-none-eabi-gcc --version
+          command -v arm-none-eabi-g++
+          arm-none-eabi-g++ --version
 
       - name: Install custom JIJIEFPVH743 hwdef
         run: |
@@ -67,23 +72,27 @@ jobs:
 
       - name: Configure board
         run: |
+          set -eux
           cd ardupilot
           ./waf configure --board JIJIEFPVH743
 
       - name: Build bootloader
         run: |
+          set -eux
           cd ardupilot
           ./waf configure --board JIJIEFPVH743 --bootloader
           ./waf bootloader
 
       - name: Build ArduCopter
         run: |
+          set -eux
           cd ardupilot
           ./waf configure --board JIJIEFPVH743
           ./waf copter
 
       - name: Show build artifacts
         run: |
+          set -eux
           find ardupilot/build/JIJIEFPVH743/bin -maxdepth 1 -type f -printf '%f\n' | sort
 
       - name: Upload firmware
