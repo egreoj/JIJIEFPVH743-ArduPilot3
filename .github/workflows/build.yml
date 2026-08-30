@@ -29,10 +29,16 @@ jobs:
 
       - name: Install custom JIJIEFPVH743 hwdef
         run: |
+          set -e
+          test -f hwdef/hwdef.dat
+          test -f hwdef/hwdef-bl.dat
+          test -f hwdef/defaults.parm
           mkdir -p ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743
-          cp hwdef/JIJIEFPVH743/hwdef.dat ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743/
-          cp hwdef/JIJIEFPVH743/hwdef-bl.dat ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743/
-          cp hwdef/JIJIEFPVH743/defaults.parm ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743/
+          cp hwdef/hwdef.dat ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743/hwdef.dat
+          cp hwdef/hwdef-bl.dat ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743/hwdef-bl.dat
+          cp hwdef/defaults.parm ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743/defaults.parm
+          echo "Installed custom hwdef:"
+          ls -la ardupilot/libraries/AP_HAL_ChibiOS/hwdef/JIJIEFPVH743
 
       - name: Verify board ID
         run: |
