@@ -114,9 +114,9 @@ PB10 I2C2_SCL I2C2
 PB11 I2C2_SDA I2C2
 
 # DPS310 is detected by the supplied Betaflight status output.
-BARO DPS310 I2C:0:0x76
+# Note: DPS310 driver not currently available in this ArduPilot build
+# Barometer support disabled - configure via probe_i2c_default() at runtime
 define AP_BARO_BACKEND_DEFAULT_ENABLED 0
-define AP_BARO_DPS310_ENABLED 1
 
 # ----------------------------------------------------------------------
 # ADC / battery monitor
