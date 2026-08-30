@@ -21,6 +21,11 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      - name: Install ARM GCC Toolchain
+        uses: jetbrains/actions-clean-gcc-arm-none-eabi@v1
+        with:
+          version: '10-2020-q4'
+
       - name: Install dependencies
         run: |
           cd ardupilot
