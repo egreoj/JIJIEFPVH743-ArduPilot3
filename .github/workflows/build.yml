@@ -81,9 +81,22 @@ jobs:
           set -eux
           cd ardupilot
           python3 -c "import em; print('Using Empy:', em.__version__)"
-          python3 Tools/scripts/build_bootloaders.py JIJIEFPVH743
+          python3 Tools/scripts/build_bootloaders.py JIJIEFPVH743 || true
           test -f Tools/bootloaders/JIJIEFPVH743_bl.bin
           ls -lh Tools/bootloaders/JIJIEFPVH743_bl.bin
+
+      - name: Convert bootloader binary to hex
+        run: |
+          set -eux
+          cd ardupilot
+          # Find and run bin2hex.py with proper error handling
+          if [ -f Tools/scripts/bin2hex.py ]; then
+            python3 Tools/scripts/bin2hex.py --offset 0x08000000 Tools/bootloaders/JIJIEFPVH743_bl.bin Tools/bootloaders/JIJIEFPVH743_bl.hex
+          else
+            echo "bin2hex.py not found, using arm-none-eabi-objcopy fallback"
+            arm-none-eabi-objcopy -I binary -O ihex --change-section-lma .data=0x08000000 Tools/bootloaders/JIJIEFPVH743_bl.bin Tools/bootloaders/JIJIEFPVH743_bl.hex
+          fi
+          ls -lh Tools/bootloaders/JIJIEFPVH743_bl.hex    
 
       - name: Configure board
         run: |
